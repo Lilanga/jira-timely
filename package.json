@@ -1,0 +1,48 @@
+{
+  "name": "jira-timely",
+  "version": "0.1.0",
+  "homepage": "./",
+  "private": true,
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "electron-debug": "^2.0.0",
+    "electron-store": "^2.0.0",
+    "jira-connector": "^2.9.0",
+    "react": "^16.5.2",
+    "react-bootstrap": "^0.32.4",
+    "react-dom": "^16.5.2",
+    "react-redux": "^5.0.7",
+    "react-router-bootstrap": "^0.24.4",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "2.0.5",
+    "redux": "^4.0.1",
+    "redux-devtools-extension": "^2.13.5",
+    "redux-saga": "^0.16.2",
+    "rxdb": "^8.0.2",
+    "rxjs": "^6.3.3"
+  },
+  "main": "src/config/electron-app.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "dev": "nf start"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "electron": "^3.0.5",
+    "foreman": "^3.0.1",
+    "node-sass": "^4.9.4"
+  }
+}
