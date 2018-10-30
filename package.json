@@ -4,6 +4,7 @@
   "homepage": "./",
   "private": true,
   "dependencies": {
+    "@atlaskit/avatar": "^14.1.2",
     "babel-polyfill": "^6.26.0",
     "electron-debug": "^2.0.0",
     "electron-store": "^2.0.0",
@@ -19,7 +20,8 @@
     "redux-devtools-extension": "^2.13.5",
     "redux-saga": "^0.16.2",
     "rxdb": "^8.0.2",
-    "rxjs": "^6.3.3"
+    "rxjs": "^6.3.3",
+    "styled-components": "^4.0.3"
   },
   "main": "src/config/electron-app.js",
   "scripts": {

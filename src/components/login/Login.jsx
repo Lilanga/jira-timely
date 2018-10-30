@@ -17,7 +17,9 @@ export class Login extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.isLoggedIn && this.props.isLoggedIn !== nextProps.isLoggedIn) {
-      alert('Welcome '+nextProps.userDetails.displayName);
+      this.props.userHasAuthenticated(true);
+      this.props.history.push("/");
+      // alert('Welcome '+nextProps.userDetails.displayName);
     }
   }
 
