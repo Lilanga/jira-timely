@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
+import Avatar, { AvatarItem } from '@atlaskit/avatar';
 import { Nav, Navbar, NavItem } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import Routes from "../../Routes";
@@ -13,7 +14,8 @@ export class App extends Component {
     super(props);
 
     this.state = {
-      isAuthenticated: false
+      isAuthenticated: false,
+      userProfile: undefined,
     };
   }
 
@@ -24,6 +26,10 @@ export class App extends Component {
     this.setState({ isAuthenticated: authenticated });
   }
 
+  updateProfile = profile => {
+    this.setState({ userProfile: profile });
+  }
+
   handleLogout = event => {
     this.userHasAuthenticated(false);
   }
@@ -32,7 +38,8 @@ export class App extends Component {
 
     const childProps = {
       isAuthenticated: this.state.isAuthenticated,
-      userHasAuthenticated: this.userHasAuthenticated
+      userHasAuthenticated: this.userHasAuthenticated,
+      updateProfile: this.updateProfile
     };
 
     return (
@@ -52,7 +59,19 @@ export class App extends Component {
           <Navbar.Collapse>
             <Nav pullRight>
               {this.state.isAuthenticated
-                ? <NavItem onClick={this.handleLogout}>Logout</NavItem>
+                ? 
+                <Fragment>
+                  <NavItem>
+                  <AvatarItem
+                  avatar={<Avatar src={this.state.userProfile.avatarUrls["48x48"]} presence='online' />}
+                  key={this.state.userProfile.emailAddress}
+                  onClick={console.log}
+                  primaryText={this.state.userProfile.displayName}
+                  secondaryText={this.state.userProfile.emailAddress}
+                  />
+                  </NavItem>
+                  <NavItem onClick={this.handleLogout}>Logout</NavItem>
+                </Fragment>
                 : <Fragment>
                   <LinkContainer to="/signup">
                     <NavItem>Signup</NavItem>
