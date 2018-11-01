@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
-import Avatar, { AvatarItem } from '@atlaskit/avatar';
-import { Nav, Navbar, NavItem } from "react-bootstrap";
+import Avatar from '@atlaskit/avatar';
+import { Nav, Navbar, NavItem, NavDropdown, MenuItem } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import Routes from "../../Routes";
 import logo from './logo.svg';
@@ -61,16 +61,13 @@ export class App extends Component {
               {this.state.isAuthenticated
                 ? 
                 <Fragment>
-                  <NavItem>
-                  <AvatarItem
-                  avatar={<Avatar src={this.state.userProfile.avatarUrls["48x48"]} presence='online' />}
-                  key={this.state.userProfile.emailAddress}
-                  onClick={console.log}
-                  primaryText={this.state.userProfile.displayName}
-                  secondaryText={this.state.userProfile.emailAddress}
-                  />
-                  </NavItem>
-                  <NavItem onClick={this.handleLogout}>Logout</NavItem>
+                  <Avatar src={this.state.userProfile.avatarUrls["48x48"]} presence='online' />
+                  <NavDropdown title={this.state.userProfile.displayName} id="basic-nav-dropdown">
+                    <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
+                    <MenuItem divider />
+                    <MenuItem>Work Logs</MenuItem>
+                  </NavDropdown>
+
                 </Fragment>
                 : <Fragment>
                   <LinkContainer to="/signup">
