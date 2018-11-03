@@ -2,12 +2,14 @@ import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
 import Avatar from '@atlaskit/avatar';
 import { Nav, Navbar, NavItem, NavDropdown, MenuItem } from "react-bootstrap";
+import Loader from '../../containers/Loader';
 import { LinkContainer } from "react-router-bootstrap";
 import Routes from "../../Routes";
 import logo from './logo.svg';
 import './App.scss';
+const Store = require('electron-store');
 
-
+const store = new Store();
 export class App extends Component {
 
   constructor(props) {
@@ -15,11 +17,24 @@ export class App extends Component {
 
     this.state = {
       isAuthenticated: false,
+      isAuthenticating: true,
       userProfile: undefined,
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    try{
+      let profile = store.get('profile');
+
+      if(profile){
+        this.userHasAuthenticated(true);
+        this.updateProfile(profile);
+      }
+    }catch(e) {
+
+    }
+
+    this.setState({ isAuthenticating: false });
   }
 
   userHasAuthenticated = authenticated => {
@@ -31,6 +46,8 @@ export class App extends Component {
   }
 
   handleLogout = event => {
+    store.delete('profile');
+    store.delete('credentials');
     this.userHasAuthenticated(false);
   }
   
@@ -43,6 +60,7 @@ export class App extends Component {
     };
 
     return (
+      !this.state.isAuthenticating &&
       <div className="App container">
         <Navbar fluid collapseOnSelect>
           <Navbar.Header>
@@ -65,14 +83,15 @@ export class App extends Component {
                   <NavDropdown title={this.state.userProfile.displayName} id="basic-nav-dropdown">
                     <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
                     <MenuItem divider />
-                    <MenuItem>Work Logs</MenuItem>
+                    <LinkContainer to="/worklogs">
+                      <MenuItem>Work Logs</MenuItem>
+                    </LinkContainer>
+                    <LinkContainer to="/calendar">
+                      <MenuItem>Calendar</MenuItem>
+                    </LinkContainer>
                   </NavDropdown>
-
                 </Fragment>
                 : <Fragment>
-                  <LinkContainer to="/signup">
-                    <NavItem>Signup</NavItem>
-                  </LinkContainer>
                   <LinkContainer to="/login">
                     <NavItem>Login</NavItem>
                   </LinkContainer>
@@ -82,6 +101,7 @@ export class App extends Component {
           </Navbar.Collapse>
         </Navbar>
         <Routes childProps={childProps} />
+        <Loader />
       </div>
     );
   }

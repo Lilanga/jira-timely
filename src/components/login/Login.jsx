@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import "./Login.scss";
+const Store = require('electron-store');
 
+const store = new Store();
 export class Login extends Component {
   constructor(props) {
     super(props);
@@ -16,11 +18,12 @@ export class Login extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.isLoggedIn && this.props.isLoggedIn !== nextProps.isLoggedIn) {
+    if (nextProps.isLoggedIn) {
+      store.set('profile', nextProps.userDetails);
+      store.set('credentials', this.state);
       this.props.updateProfile(nextProps.userDetails);
       this.props.userHasAuthenticated(true);
       this.props.history.push("/");
-      // alert('Welcome '+nextProps.userDetails.displayName);
     }
   }
 
