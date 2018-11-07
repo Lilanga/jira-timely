@@ -7,8 +7,7 @@ import { validateAccount } from '../../utils/jiraApi';
 function* handleFetchProfile(payload) {
     try {
         // To call async functions, use redux-saga's `call()`.
-        const res = yield effects.call(validateAccount, payload.payload.url, payload.payload.username, payload.payload.password);
-
+        const res = yield effects.call(validateAccount, payload.payload.url, payload.payload.email, payload.payload.password);
         if (res) {
             yield effects.put(actions.loginSuccess(res));
         }

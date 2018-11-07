@@ -24,17 +24,22 @@ export class App extends Component {
 
   async componentDidMount() {
     try{
-      let profile = store.get('profile');
-
-      if(profile){
-        this.userHasAuthenticated(true);
-        this.updateProfile(profile);
+      let credentials = store.get('credentials');
+      this.setState({ isAuthenticating: credentials });
+      if(credentials){
+        this.props.loginRequest(credentials);
       }
     }catch(e) {
-
+      this.setState({ isAuthenticating: false });
     }
+  }
 
+  componentWillReceiveProps(nextProps) {
     this.setState({ isAuthenticating: false });
+    if (nextProps.isLoggedIn) {
+      this.updateProfile(nextProps.userDetails);
+      this.userHasAuthenticated(true);
+    }
   }
 
   userHasAuthenticated = authenticated => {

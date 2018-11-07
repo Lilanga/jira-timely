@@ -42,7 +42,7 @@ export class Login extends Component {
     
     this.props.loginRequest({
       url: this.state.url,
-      username: this.state.email,
+      email: this.state.email,
       password: this.state.password
     });
   }
