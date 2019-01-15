@@ -1,5 +1,4 @@
-import { applyMiddleware, createStore } from "redux";
-import { composeWithDevTools } from "redux-devtools-extension";
+import { applyMiddleware, createStore, compose } from "redux";
 import createSagaMiddleware from "redux-saga";
 
 // Import the state interface and our combined reducers/sagas.
@@ -7,7 +6,7 @@ import { rootReducer, rootSaga } from "./index";
 
 export default function configureStore(initialState) {
     // create the composing function for our middlewares
-    const composeEnhancers = composeWithDevTools({});
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
     // create the redux-saga middleware
     const sagaMiddleware = createSagaMiddleware();
 

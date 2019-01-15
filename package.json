@@ -8,9 +8,8 @@
     "antd": "^3.10.3",
     "babel-plugin-import": "^1.11.0",
     "babel-polyfill": "^6.26.0",
-    "electron-debug": "^2.0.0",
-    "electron-store": "^2.0.0",
     "jira-connector": "^2.9.0",
+    "pouchdb-adapter-idb": "^7.0.0",
     "react": "^16.5.2",
     "react-app-rewired": "^1.6.2",
     "react-bootstrap": "^0.32.4",
@@ -20,7 +19,6 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.0.5",
     "redux": "^4.0.1",
-    "redux-devtools-extension": "^2.13.5",
     "redux-saga": "^0.16.2",
     "rxdb": "^8.0.2",
     "rxjs": "^6.3.3",
@@ -46,7 +44,10 @@
   ],
   "devDependencies": {
     "cross-env": "^5.2.0",
+    "devtron": "^1.4.0",
     "electron": "^3.0.5",
+    "electron-debug": "^2.0.0",
+    "electron-devtools-installer": "^2.2.4",
     "foreman": "^3.0.1",
     "node-sass": "^4.9.4"
   }

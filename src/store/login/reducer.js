@@ -10,6 +10,8 @@ import * as types from './types';
         return { ...state, userDetails: action.payload, isLoading: false, isLoggedIn: true };
       case types.LOGIN_REQUEST_FAILED:
         return { ...state, userDetails: {}, isLoading: false, isLoggedIn: false };
+      case types.LOGOUT_REQUEST:
+        return { ...state, userDetails: {}, isLoggedIn: false  };
       default:
         return state;
     }

@@ -1,71 +1,56 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
-import Avatar from '@atlaskit/avatar';
+import Avatar from "@atlaskit/avatar";
 import { Nav, Navbar, NavItem, NavDropdown, MenuItem } from "react-bootstrap";
-import Loader from '../../containers/Loader';
+import Loader from "../../containers/Loader";
 import { LinkContainer } from "react-router-bootstrap";
 import Routes from "../../Routes";
-import logo from './logo.svg';
-import './App.scss';
-const Store = require('electron-store');
+import logo from "./logo.svg";
+import "./App.scss";
+import { createDatabase } from "../../data/database";
 
-const store = new Store();
 export class App extends Component {
-
   constructor(props) {
     super(props);
 
     this.state = {
-      isAuthenticated: false,
       isAuthenticating: true,
-      userProfile: undefined,
+      userProfile: undefined
     };
+
+    this.handleLogout = this.handleLogout.bind(this);
   }
 
   async componentDidMount() {
-    try{
-      let credentials = store.get('credentials');
-      this.setState({ isAuthenticating: credentials });
-      if(credentials){
-        this.props.loginRequest(credentials);
-      }
-    }catch(e) {
+    this.db = await createDatabase();
+
+    try {
+      this.db.credentials
+        .findOne()
+        .exec()
+        .then(creds => {
+          this.setState({ isAuthenticating: creds });
+          if (!creds) {
+            return;
+          }
+
+          this.props.loginRequest(creds);
+        });
+    } catch (e) {
       this.setState({ isAuthenticating: false });
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({ isAuthenticating: false });
-    if (nextProps.isLoggedIn) {
-      this.updateProfile(nextProps.userDetails);
-      this.userHasAuthenticated(true);
-    }
+  async handleLogout(event) {
+    const db = await createDatabase();
+    await db.credentials.find().remove();
+    await db.profile.find().remove();
+
+    this.props.logoutRequest();
   }
 
-  userHasAuthenticated = authenticated => {
-    this.setState({ isAuthenticated: authenticated });
-  }
-
-  updateProfile = profile => {
-    this.setState({ userProfile: profile });
-  }
-
-  handleLogout = event => {
-    store.delete('profile');
-    store.delete('credentials');
-    this.userHasAuthenticated(false);
-  }
-  
   render() {
-
-    const childProps = {
-      isAuthenticated: this.state.isAuthenticated,
-      userHasAuthenticated: this.userHasAuthenticated,
-      updateProfile: this.updateProfile
-    };
-
     return (
-      !this.state.isAuthenticating &&
       <div className="App container">
         <Navbar fluid collapseOnSelect>
           <Navbar.Header>
@@ -81,11 +66,16 @@ export class App extends Component {
           </Navbar.Header>
           <Navbar.Collapse>
             <Nav pullRight>
-              {this.state.isAuthenticated
-                ? 
+              {this.props.isLoggedIn ? (
                 <Fragment>
-                  <Avatar src={this.state.userProfile.avatarUrls["48x48"]} presence='online' />
-                  <NavDropdown title={this.state.userProfile.displayName} id="basic-nav-dropdown">
+                  <Avatar
+                    src={this.props.userDetails.avatarUrls.large}
+                    presence="online"
+                  />
+                  <NavDropdown
+                    title={this.props.userDetails.displayName}
+                    id="basic-nav-dropdown"
+                  >
                     <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
                     <MenuItem divider />
                     <LinkContainer to="/worklogs">
@@ -96,16 +86,17 @@ export class App extends Component {
                     </LinkContainer>
                   </NavDropdown>
                 </Fragment>
-                : <Fragment>
+              ) : (
+                <Fragment>
                   <LinkContainer to="/login">
                     <NavItem>Login</NavItem>
                   </LinkContainer>
                 </Fragment>
-              }
+              )}
             </Nav>
           </Navbar.Collapse>
         </Navbar>
-        <Routes childProps={childProps} />
+        <Routes />
         <Loader />
       </div>
     );
