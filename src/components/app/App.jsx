@@ -8,7 +8,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import Routes from "../../Routes";
 import logo from "./logo.svg";
 import "./App.scss";
-import { createDatabase } from "../../data/database";
+import { getCredentials } from "../../data/database";
 
 export class App extends Component {
   constructor(props) {
@@ -16,7 +16,6 @@ export class App extends Component {
 
     this.state = {
       isAuthenticating: true,
-      userProfile: undefined,
       collapsed: false,
     };
 
@@ -24,30 +23,20 @@ export class App extends Component {
   }
 
   async componentDidMount() {
-    this.db = await createDatabase();
-
+    
     try {
-      this.db.credentials
-        .findOne()
-        .exec()
-        .then(creds => {
-          this.setState({ isAuthenticating: creds });
-          if (!creds) {
-            return;
-          }
-
-          this.props.loginRequest(creds);
-        });
+      let credentials = await getCredentials();
+      this.setState({ isAuthenticating: credentials });
+      
+      if(credentials){
+        this.props.signInRequest(credentials);
+      }
     } catch (e) {
       this.setState({ isAuthenticating: false });
     }
   }
 
   async handleLogout(event) {
-    const db = await createDatabase();
-    await db.credentials.find().remove();
-    await db.profile.find().remove();
-
     this.props.logoutRequest();
   }
 
@@ -72,6 +61,8 @@ export class App extends Component {
     const { Content, Sider } = Layout;
     const SubMenu = Menu.SubMenu;
 
+    if(this.props.isLoggedIn) document.title = `${document.title} ${this.props.userDetails.displayName}`;
+
     return (
       <Layout className="layout">
       {this.props.isLoggedIn ? (
@@ -81,8 +72,10 @@ export class App extends Component {
           onCollapse={this.onCollapse}
         >
         <span className="avatar">
-          <Avatar
+        <Avatar
             src={this.props.userDetails.avatarUrls.large}
+            name={this.props.userDetails.displayName}
+            enableTooltip={true}
             presence="online"
           />
         </span>

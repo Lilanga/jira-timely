@@ -1,7 +1,7 @@
 import { connect} from "react-redux";
 import { withRouter } from "react-router-dom";
 import { App } from '../components/app/App';
-import { loginRequest, logoutRequest } from '../store/login';
+import { logoutRequest, signInRequest } from '../store/login';
 
 const mapStateToProps = state => ({
     isLoggedIn: state.profile.isLoggedIn,
@@ -10,8 +10,8 @@ const mapStateToProps = state => ({
   });
   
   const mapDispatchToProps = dispatch => ({
-    loginRequest: (payload) => {
-      dispatch(loginRequest(payload));
+    signInRequest: (payload) => {
+      dispatch(signInRequest(payload));
     },
     logoutRequest: () => {
       dispatch(logoutRequest());

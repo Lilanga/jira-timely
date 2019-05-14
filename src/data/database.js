@@ -12,7 +12,6 @@ const dbName = "timelydb";
 let database = {};
 
 async function createDatabase() {
-    if (Object.keys(database).length === 0 && database.constructor === Object) {
         let db = await RxDB.create({
             name: dbName,
             adapter: "idb",
@@ -34,11 +33,61 @@ async function createDatabase() {
         });
 
         database = db;
+}
+
+async function getDatabase(){
+    if (Object.keys(database).length === 0 && database.constructor === Object) {
+        await createDatabase();
     }
+
     return database;
 }
 
+async function saveCredentials(credentials){
+    let db = await getDatabase();
+    try{
+        await db.credentials.insert(credentials);
+    }catch(e){
+        // error reporting
+    }
+}
+
+async function saveProfile(profile){
+    let db = await getDatabase();
+    try{
+        await db.profile.insert(profile);
+    }catch(e){
+        // error reporting
+    }
+}
+
+async function getCredentials(){
+    let db = await getDatabase();
+    let credentials;
+
+    try{
+        credentials = await (db.credentials.findOne()).exec();
+    }catch(e){
+        credentials = null;
+    }
+
+    return credentials;
+}
+
+async function clearCredentials(){
+    let db = await getDatabase();
+    try{
+        await db.credentials.find().remove();
+        await db.profile.find().remove();
+    }catch(e){
+        // error reporting
+    }
+}
+
 export {
-    database,
-    createDatabase
+    getDatabase,
+    saveCredentials,
+    saveProfile,
+    getCredentials,
+    clearCredentials
 };

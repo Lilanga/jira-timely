@@ -4,6 +4,10 @@ export function loginRequest(payload) {
     return { type: types.LOGIN_REQUEST, payload };
 }
 
+export function signInRequest(payload) {
+    return { type: types.SIGNIN_REQUEST, payload };
+}
+
 export function loginSuccess(payload) {
     return { type: types.LOGIN_REQUEST_SUCCESS, payload };
 }

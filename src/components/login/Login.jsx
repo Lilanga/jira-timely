@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import "./Login.scss";
-import {createDatabase} from '../../data/database';
 
 export class Login extends Component {
   constructor(props) {
@@ -18,10 +17,6 @@ export class Login extends Component {
 
   async componentWillReceiveProps(nextProps) {
     if (nextProps.isLoggedIn) {
-      const database = await createDatabase();
-      database.credentials.insert(this.state);
-      database.profile.insert(nextProps.userDetails);
-
       this.setState({url: "",  email: "", password: ""});
       this.props.history.push("/");
     }
