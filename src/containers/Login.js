@@ -3,9 +3,7 @@ import { Login } from '../components/login/Login';
 import { loginRequest } from '../store/login';
 
 const mapStateToProps = state => ({
-    isLoggedIn: state.profile.isLoggedIn,
-    userDetails: state.profile.userDetails,
-    loading: state.profile.isLoading,
+    isLoggedIn: state.profile.isLoggedIn
   });
   
   const mapDispatchToProps = dispatch => ({
