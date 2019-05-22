@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import TitleBar from 'frameless-titlebar';
-import defaultIcon from '../../img/jira_sm.png'
-import { Layout} from 'antd';
+import TitleBar from "frameless-titlebar";
+import defaultIcon from "../../img/jira_sm.png"
+import { Layout } from "antd";
 import Loader from "../../containers/Loader";
 import Navigation from "../../containers/Navigation";
 import Routes from "../../Routes";
@@ -46,12 +46,14 @@ export class App extends Component {
             barBorderBottom: '1px solid #1a70b7',
           }}
         />
-        <Navigation />
         <Layout>
-          <Content>
-            <Routes />
-            <Loader />
-          </Content>
+          <Navigation />
+          <Layout>
+            <Content>
+              <Routes />
+              <Loader />
+            </Content>
+          </Layout>
         </Layout>
       </Layout>
     );
