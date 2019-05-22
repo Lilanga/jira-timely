@@ -8,6 +8,7 @@
     "antd": "^3.10.3",
     "babel-plugin-import": "^1.11.0",
     "babel-polyfill": "^6.26.0",
+    "frameless-titlebar": "^1.0.8",
     "jira-connector": "^2.9.0",
     "pouchdb-adapter-idb": "^7.0.0",
     "react": "^16.5.2",

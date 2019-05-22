@@ -8,7 +8,14 @@ require('electron-debug')();
 let mainWindow;
 
 function createWindow(){
-    mainWindow = new BrowserWindow({webPreferences: {webSecurity: false}, Width:800, height:600, icon: __dirname+'/../img/jira_sm.png'});
+    mainWindow = new BrowserWindow({
+        webPreferences: {webSecurity: false}, 
+        Width:800, 
+        height:600, 
+        icon: __dirname+'/../img/jira_sm.png',
+        frame: false,
+        titleBarStyle: 'hidden'
+    });
     mainWindow.setMenu(null);
 
     // and load the index.html of the app.

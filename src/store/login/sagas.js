@@ -15,11 +15,7 @@ function* handleLogin(payload) {
             yield effects.put(actions.loginSuccess(res));
         }
     } catch (err) {
-        if (err instanceof Error) {
-            yield effects.put(actions.loginFailed(err.stack));
-        } else {
-            yield effects.put(actions.loginFailed("An unknown error occured."));
-        }
+        handleLoginErrors(err);
     }
 }
 
@@ -31,11 +27,15 @@ function* handleSignIn(payload) {
             yield effects.put(actions.loginSuccess(res));
         }
     } catch (err) {
-        if (err instanceof Error) {
-            yield effects.put(actions.loginFailed(err.stack));
-        } else {
-            yield effects.put(actions.loginFailed("An unknown error occured."));
-        }
+        handleLoginErrors(err);
+    }
+}
+
+function* handleLoginErrors(error){
+    if (error instanceof Error) {
+        yield effects.put(actions.loginFailed(error.stack));
+    } else {
+        yield effects.put(actions.loginFailed("An unknown error occured."));
     }
 }
 
