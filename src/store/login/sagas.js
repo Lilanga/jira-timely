@@ -1,6 +1,7 @@
 import * as effects from "redux-saga/effects";
-
+import dates from "../../utils/dates";
 import * as actions from "./actions";
+import * as worklogActions from "../worklog/actions";
 import { LOGIN_REQUEST, LOGOUT_REQUEST, SIGNIN_REQUEST } from "./types";
 import { validateAccount } from "../../utils/jiraApi";
 import {saveCredentials, saveProfile, clearCredentials} from '../../data/database';
@@ -12,7 +13,7 @@ function* handleLogin(payload) {
         if (res) {
             saveCredentials(payload.payload);
             saveProfile(res.payload);
-            yield effects.put(actions.loginSuccess(res));
+            yield handlePostSignIn(res);
         }
     } catch (err) {
         handleLoginErrors(err);
@@ -21,14 +22,20 @@ function* handleLogin(payload) {
 
 function* handleSignIn(payload) {
     try {
-        // To call async functions, use redux-saga's `call()`.
         const res = yield effects.call(validateAccount, payload.payload.url, payload.payload.email, payload.payload.password);
         if (res) {
-            yield effects.put(actions.loginSuccess(res));
+            yield handlePostSignIn(res);
         }
     } catch (err) {
         handleLoginErrors(err);
     }
+}
+
+function* handlePostSignIn(res){
+    yield effects.put(actions.loginSuccess(res));
+    
+    const range = {startDate: dates.add(new Date(), -30, "day"), endDate: new Date()};
+    yield effects.put(worklogActions.worklogRequest(range));
 }
 
 function* handleLoginErrors(error){
@@ -59,5 +66,9 @@ function* watchLogoutRequest() {
 
 // use `fork()` here to split our saga into multiple watchers.
 export function* userProfileSaga() {
-    yield effects.all([effects.fork(watchLoginRequest), effects.fork(watchLogoutRequest), effects.fork(watchSignInRequest)]);
+    yield effects.all([
+        effects.fork(watchLoginRequest), 
+        effects.fork(watchLogoutRequest), 
+        effects.fork(watchSignInRequest)
+    ]);
 }

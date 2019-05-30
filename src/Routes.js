@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
-import { Home, NotFound, WorkLogCalendar } from "./components";
+import { Home, NotFound } from "./components";
+import WorkLogCalendar from "./containers/WorkLogCalendar";
 import Login from "./containers/Login";
 import AppliedRoute from "./utils/AppliedRoute";
 

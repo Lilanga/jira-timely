@@ -1,14 +1,20 @@
+import {formatToJiraDate, getWorklogsFromIssues} from './payloadMappings';
+
 var JiraClient = require('jira-connector');
+
+const getJiraClient = (host, username, password) =>{
+    return new JiraClient({
+        host,
+        basic_auth: {
+            username,
+            password
+        }
+    });
+}
 
 export function getIssue(issueKey) {
     return new Promise((resolve, reject) => {
-        let jira = new JiraClient({
-            host: process.env.REACT_APP_JIRA_API_ENDPOINT,
-            basic_auth: {
-                username: process.env.REACT_APP_JIRA_USER_NAME,
-                password: process.env.REACT_APP_JIRA_PASSWORD
-            }
-        });
+        let jira = getJiraClient(process.env.REACT_APP_JIRA_API_ENDPOINT, process.env.REACT_APP_JIRA_USER_NAME, process.env.REACT_APP_JIRA_PASSWORD);
 
         jira.issue.getIssue({
             issueKey: issueKey
@@ -23,13 +29,7 @@ export function getIssue(issueKey) {
 
 export function searchUser(username, password) {
     return new Promise((resolve, reject) => {
-        let jira = new JiraClient({
-            host: process.env.REACT_APP_JIRA_API_ENDPOINT,
-            basic_auth: {
-                username: username,
-                password: password
-            }
-        });
+        let jira = getJiraClient(process.env.REACT_APP_JIRA_API_ENDPOINT, username, password);
 
         jira.user.search({
             username: username
@@ -44,13 +44,7 @@ export function searchUser(username, password) {
 
 export function validateAccount(url, username, password) {
     return new Promise((resolve, reject) => {
-        let jira = new JiraClient({
-            host: url,
-            basic_auth: {
-                username: username,
-                password: password
-            }
-        });
+        let jira = getJiraClient(url, username, password);
 
         jira.user.search({
             username: username
@@ -72,6 +66,28 @@ export function validateAccount(url, username, password) {
                 delete userDetailsData.avatarUrls["48x48"];
                 resolve(userDetailsData);
             }
+        });
+    });
+}
+
+export function getWorklogs(url, username, password, startDate, endDate) {
+
+    const worklogJQL = `worklogAuthor in ('${username}') and worklogDate >= '${formatToJiraDate(startDate)}' and worklogDate < '${formatToJiraDate(endDate)}'`;
+
+    return new Promise((resolve, reject) => {
+        let jira = getJiraClient(url, username, password);
+
+        jira.search.search({
+            jql: worklogJQL,
+            fields: ["summary", "worklog", "issuetype", "parent"],
+            maxResults: 1000
+        }, function (error, response) {
+            if (error) {
+                reject(error);
+            }
+
+            let worklogs = getWorklogsFromIssues(response.issues);
+            resolve(worklogs);
         });
     });
 }
