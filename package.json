@@ -55,6 +55,6 @@
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
     "foreman": "^3.0.1",
-    "node-sass": "^4.9.4"
+    "node-sass": "^7.0.0"
   }
 }
