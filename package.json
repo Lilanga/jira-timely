@@ -25,7 +25,7 @@
     "react-tackle-box": "^2.1.0",
     "redux": "^4.0.1",
     "redux-saga": "^0.16.2",
-    "rxdb": "^8.0.2",
+    "rxdb": "^8.9.0",
     "rxjs": "^6.3.3",
     "smalltalk": "^3.4.0",
     "styled-components": "^4.0.3"
