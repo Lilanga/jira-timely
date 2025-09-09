@@ -1,45 +1,66 @@
-import * as RxDB from "rxdb";
+import { createRxDatabase, addRxPlugin } from "rxdb";
+import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election';
 // import { QueryChangeDetector } from "rxdb";
 import {
     credentialsSchema,
     profileSchema
 } from "../data";
+import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
+
+// Add the leader election plugin
+addRxPlugin(RxDBLeaderElectionPlugin);
 
 // QueryChangeDetector.enable();
 // QueryChangeDetector.enableDebugging();
-RxDB.plugin(require("pouchdb-adapter-idb"));
+// RxDB v15+ uses modern storage adapters
+// addRxPlugin(require("pouchdb-adapter-idb"));
 const dbName = "timelydb";
-let database = {};
+let database = null;
 
 async function createDatabase() {
-        let db = await RxDB.create({
+    try {
+        let db = await createRxDatabase({
             name: dbName,
-            adapter: "idb",
-            queryChangeDetection: true,
+            storage: getRxStorageDexie(),
+            ignoreDuplicate: true, // Allow reusing existing database
         });
+
+        console.log("Database created successfully:", db);
 
         db.waitForLeadership().then(() => {
             document.title = "♛ " + document.title;
         });
 
-        await db.collection({
-            name: "credentials",
-            schema: credentialsSchema
+        await db.addCollections({
+            credentials: {
+                schema: credentialsSchema
+            },
+            profile: {
+                schema: profileSchema
+            }
         });
 
-        await db.collection({
-            name: "profile",
-            schema: profileSchema
-        });
-
+        console.log("Collections created successfully");
         database = db;
+    } catch (error) {
+        console.error("Database creation error:", error);
+        // If database already exists, try to get the existing instance
+        if (error.code === 'DB8' || error.message?.includes('already exists')) {
+            // Database already exists, this is okay
+            console.log("Database already exists, reusing existing instance");
+            // Don't set database to an empty object, keep it as is for retry
+        } else {
+            throw error;
+        }
+    }
 }
 
 async function getDatabase(){
-    if (Object.keys(database).length === 0 && database.constructor === Object) {
+    if (!database) {
         await createDatabase();
     }
 
+    console.log("Returning database:", database);
     return database;
 }
 

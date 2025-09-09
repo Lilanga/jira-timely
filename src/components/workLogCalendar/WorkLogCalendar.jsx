@@ -1,26 +1,29 @@
 import React, { Component } from "react";
-import BigCalendar from "react-big-calendar";
+import { Calendar, Views } from "react-big-calendar";
 import {getEventsFromWorklogs} from "../../utils/payloadMappings";
 import ControlSlot from "../../utils/controlSlot";
-import globalize from 'globalize';
+import moment from 'moment';
 import smalltalk from "smalltalk";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./WorkLogCalendar.scss";
 
-const localizer = BigCalendar.globalizeLocalizer(globalize);
+import { momentLocalizer } from "react-big-calendar";
+const localizer = momentLocalizer(moment);
 export class WorkLogCalendar extends Component {
 
   constructor(props) {
     super(props);
 
-    this.state = { events: getEventsFromWorklogs(props.worklogs) }
+    console.log("WorkLogCalendar props:", props);
+    this.state = { events: getEventsFromWorklogs(props.worklogs || []) }
 
     this.handleSelect = this.handleSelect.bind(this);
   }
 
-  componentWillReceiveProps(nextProps){
-    if(nextProps.worklogs !== this.props.worklogs){
-      let events = getEventsFromWorklogs(nextProps.worklogs);
+  componentDidUpdate(prevProps){
+    if(this.props.worklogs !== prevProps.worklogs){
+      console.log("WorkLogCalendar updating with new worklogs:", this.props.worklogs);
+      let events = getEventsFromWorklogs(this.props.worklogs || []);
       this.setState({events});
     }
   }
@@ -55,11 +58,11 @@ export class WorkLogCalendar extends Component {
             to select a date/time range.
           </strong>
         </ControlSlot.Entry>
-        <BigCalendar
+        <Calendar
           selectable
           localizer={localizer}
           events={this.state.events}
-          defaultView={BigCalendar.Views.WEEK}
+          defaultView={Views.WEEK}
           scrollToTime={new Date(1970, 1, 1, 6)}
           defaultDate={new Date()}
           onSelectEvent={event => alert(event.title)}

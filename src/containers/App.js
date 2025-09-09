@@ -1,5 +1,4 @@
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
 import { App } from '../components/app/App';
 import { signInRequest } from '../store/login';
 
@@ -9,4 +8,4 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-export default withRouter(connect(null, mapDispatchToProps)(App));
+export default connect(null, mapDispatchToProps)(App);

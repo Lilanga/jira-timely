@@ -2,14 +2,14 @@ export const profileSchema = {
     title: 'User profile schema',
     description: 'Database schema for user profile',
     version: 0,
+    primaryKey: 'emailAddress',
     type: 'object',
     properties: {
         self: {
             type: 'string'
         },
         key: {
-            type: 'string',
-            primary: true
+            type: 'string'
         },
         name: {
             type: 'string'
@@ -19,6 +19,7 @@ export const profileSchema = {
         },
         avatarUrls: {
             type: 'object',
+            additionalProperties: false,
             properties: {
                 extraSmall: {
                     type: "string"
@@ -47,5 +48,5 @@ export const profileSchema = {
             type: 'string'
         }
     },
-    required: ['key', 'name', 'emailAddress']
+    required: ['emailAddress']
 }

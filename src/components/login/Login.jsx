@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
+import { Navigate } from "react-router-dom";
 import "./Login.scss";
 
 export class Login extends Component {
@@ -9,16 +10,16 @@ export class Login extends Component {
     this.state = {
       url: "",
       email: "",
-      password: ""
+      password: "",
+      shouldRedirect: false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  async componentWillReceiveProps(nextProps) {
-    if (nextProps.isLoggedIn) {
-      this.setState({url: "",  email: "", password: ""});
-      this.props.history.push("/");
+  async componentDidUpdate(prevProps) {
+    if (this.props.isLoggedIn && !prevProps.isLoggedIn) {
+      this.setState({url: "",  email: "", password: "", shouldRedirect: true});
     }
   }
 
@@ -35,6 +36,12 @@ export class Login extends Component {
   handleSubmit = event => {
     event.preventDefault();
     
+    console.log("Login form submitted with data:", {
+      url: this.state.url,
+      email: this.state.email,
+      password: this.state.password
+    });
+    
     this.props.loginRequest({
       url: this.state.url,
       email: this.state.email,
@@ -43,44 +50,56 @@ export class Login extends Component {
   }
 
   render() {
+    if (this.state.shouldRedirect) {
+      return <Navigate to="/" replace />;
+    }
+
     return (
       <div className="Login">
-        <form onSubmit={this.handleSubmit}>
-        <FormGroup controlId="url" bsSize="large">
-            <ControlLabel>JIRA Url</ControlLabel>
-            <FormControl
+        <Form onSubmit={this.handleSubmit}>
+          <Form.Group className="mb-3" controlId="url">
+            <Form.Label>JIRA Url</Form.Label>
+            <Form.Control
               autoFocus
               type="text"
+              size="lg"
               value={this.state.url}
               onChange={this.handleChange}
             />
-          </FormGroup>
-          <FormGroup controlId="email" bsSize="large">
-            <ControlLabel>User Name</ControlLabel>
-            <FormControl
-              autoFocus
-              type="text"
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="email">
+            <Form.Label>Email Address</Form.Label>
+            <Form.Control
+              type="email"
+              size="lg"
               value={this.state.email}
               onChange={this.handleChange}
+              placeholder="your-email@company.com"
             />
-          </FormGroup>
-          <FormGroup controlId="password" bsSize="large">
-            <ControlLabel>Password</ControlLabel>
-            <FormControl
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="password">
+            <Form.Label>API Token</Form.Label>
+            <Form.Control
               value={this.state.password}
               onChange={this.handleChange}
               type="password"
+              size="lg"
+              placeholder="Your JIRA API Token"
             />
-          </FormGroup>
+            <Form.Text className="text-muted">
+              For JIRA Cloud, use your API Token instead of password. 
+              Create one at: Account Settings → Security → API Tokens
+            </Form.Text>
+          </Form.Group>
           <Button
-            block
-            bsSize="large"
+            className="w-100"
+            size="lg"
             disabled={!this.validateForm()}
             type="submit"
           >
             Login
           </Button>
-        </form>
+        </Form>
       </div>
     );
   }

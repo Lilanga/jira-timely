@@ -1,6 +1,5 @@
-export * from './app/App';
-export * from './home/Home';
-export * from './notFound/NotFound';
-export * from './login/Login';
-export * from './loader/Loader';
-export * from './workLogCalendar/WorkLogCalendar';
+export { Home } from './home/Home';
+export { NotFound } from './notFound/NotFound';
+export { Login } from './login/Login';
+export { Loader } from './loader/Loader';
+export { WorkLogCalendar } from './workLogCalendar/WorkLogCalendar';

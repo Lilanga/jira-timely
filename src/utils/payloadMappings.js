@@ -20,8 +20,21 @@ export function getWorklogsFromIssues(issues) {
 
 export function getEventsFromWorklogs(worklogs){
     let events = [];
-    worklogs.map(issue =>{
-        issue.worklogs.map(log =>{
+    
+    // Handle case where worklogs is not an array or is undefined/null
+    if (!worklogs || !Array.isArray(worklogs)) {
+        console.warn('Worklogs is not an array:', worklogs);
+        return events;
+    }
+    
+    worklogs.forEach(issue => {
+        // Check if issue has worklogs array
+        if (!issue.worklogs || !Array.isArray(issue.worklogs)) {
+            console.warn('Issue worklogs is not an array:', issue);
+            return;
+        }
+        
+        issue.worklogs.forEach(log => {
             let startDate = new Date(log.started);
             let endDate = new Date(log.started);
             endDate = new Date(endDate.setSeconds(endDate.getSeconds() + log.timeSpentSeconds));
@@ -31,11 +44,7 @@ export function getEventsFromWorklogs(worklogs){
                 start: startDate,
                 end: endDate
             });
-
-            return 0;
         });
-
-        return 0;
     });
 
     return events;

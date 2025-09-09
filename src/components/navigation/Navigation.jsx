@@ -1,9 +1,15 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import Avatar from "@atlaskit/avatar";
-import { Nav, Navbar, NavItem } from "react-bootstrap";
-import { Layout, Menu, Icon } from 'antd';
-import { LinkContainer } from "react-router-bootstrap";
+import { Nav, Navbar, Container } from "react-bootstrap";
+import { Layout, Menu } from 'antd';
+import { 
+  AreaChartOutlined, 
+  ScheduleOutlined, 
+  CalendarOutlined, 
+  SettingOutlined, 
+  PoweroffOutlined 
+} from '@ant-design/icons';
 import logo from "./logo.svg";
 import "./Navigation.scss"
 
@@ -13,10 +19,11 @@ export class Navigation extends Component {
         super(props);
 
         this.state = {
-            collapsed: false,
+            collapsed: false
         };
 
         this.handleLogout = this.handleLogout.bind(this);
+        this.onMenuClick = this.onMenuClick.bind(this);
     }
 
     async handleLogout(event) {
@@ -27,22 +34,60 @@ export class Navigation extends Component {
         this.setState({ collapsed });
     }
 
-    onMenuClick = (item) => {
-        if (item.key.charAt(0) === "/") {
-            var path = `${item.key}`;
-        } else {
-            if (item.key === "logoff") {
-                path = "/login";
-                this.handleLogout();
-            }
+    onMenuClick = ({ key }) => {
+        if (key.charAt(0) === "/") {
+            // Navigate to the path
+            window.location.pathname = key;
+        } else if (key === "logoff") {
+            this.handleLogout();
+            window.location.pathname = "/login";
         }
-
-        this.props.history.push(path);
     }
 
     render() {
         const { Sider } = Layout;
-        const SubMenu = Menu.SubMenu;
+
+        const menuItems = [
+            {
+                key: '/',
+                icon: <AreaChartOutlined />,
+                label: 'Timely',
+            },
+            {
+                key: 'sub-log',
+                icon: <ScheduleOutlined />,
+                label: 'Worklogs',
+                children: [
+                    {
+                        key: '/worklog',
+                        label: 'My worklog',
+                    },
+                    {
+                        key: '4',
+                        label: 'Team worklogs',
+                    },
+                    {
+                        key: '5',
+                        label: 'My Items',
+                    },
+                ],
+            },
+            {
+                key: '/calendar',
+                icon: <CalendarOutlined />,
+                label: 'Calendar',
+            },
+            {
+                key: '/settings',
+                icon: <SettingOutlined />,
+                label: 'Settings',
+            },
+            {
+                key: 'logoff',
+                icon: <PoweroffOutlined />,
+                label: 'Logout',
+            },
+        ];
 
         return (
             this.props.isLoggedIn ? (
@@ -53,58 +98,35 @@ export class Navigation extends Component {
                 >
                     <span className="avatar">
                         <Avatar
-                            src={this.props.userDetails.avatarUrls.large}
-                            name={this.props.userDetails.displayName}
+                            src={this.props.userDetails?.avatarUrls?.large || ''}
+                            name={this.props.userDetails?.displayName || 'User'}
                             enableTooltip={true}
                             presence="online"
                         />
                     </span>
-                    <Menu theme="dark" mode="inline" onSelect={this.onMenuClick} style={{ paddingTop: "15px" }}>
-                        <Menu.Item key="/">
-                            <Icon type="area-chart" />
-                            <span>Timely</span>
-                        </Menu.Item>
-                        <SubMenu
-                            key="sub-log"
-                            title={<span><Icon type="schedule" /><span>worklogs</span></span>}
-                        >
-                            <Menu.Item key="/worklog">My worklog</Menu.Item>
-                            <Menu.Item key="4">Team worklogs</Menu.Item>
-                            <Menu.Item key="5">My Items</Menu.Item>
-                        </SubMenu>
-                        <Menu.Item key="/calendar">
-                            <Icon type="calendar" />
-                            <span>Calender</span>
-                        </Menu.Item>
-                        <Menu.Item key="/settings">
-                            <Icon type="setting" />
-                            <span>Settings</span>
-                        </Menu.Item>
-                        <Menu.Item key="logoff">
-                            <Icon type="poweroff" />
-                            <span>Logout</span>
-                        </Menu.Item>
-                    </Menu>
+                    <Menu 
+                        theme="dark" 
+                        mode="inline" 
+                        onClick={this.onMenuClick} 
+                        items={menuItems}
+                        style={{ paddingTop: "15px" }}
+                    />
                 </Sider>) : (
-                    <Navbar fluid collapseOnSelect>
-                        <Navbar.Header>
-                            <Navbar.Brand>
-                                <Link to="/">
-                                    <span className="header-line">
-                                        <img src={logo} className="app-logo" alt="logo" />
-                                        <span>Timely</span>
-                                    </span>
-                                </Link>
+                    <Navbar expand="lg" collapseOnSelect>
+                        <Container fluid>
+                            <Navbar.Brand as={Link} to="/">
+                                <span className="header-line">
+                                    <img src={logo} className="app-logo" alt="logo" />
+                                    <span>Timely</span>
+                                </span>
                             </Navbar.Brand>
                             <Navbar.Toggle />
-                        </Navbar.Header>
-                        <Navbar.Collapse>
-                            <Nav pullRight>
-                                <LinkContainer to="/login">
-                                    <NavItem>Login</NavItem>
-                                </LinkContainer>
-                            </Nav>
-                        </Navbar.Collapse>
+                            <Navbar.Collapse>
+                                <Nav className="ms-auto">
+                                    <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                                </Nav>
+                            </Navbar.Collapse>
+                        </Container>
                     </Navbar>
                 )
         );

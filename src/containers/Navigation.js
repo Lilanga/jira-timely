@@ -1,5 +1,4 @@
 import { connect} from "react-redux";
-import { withRouter } from "react-router-dom";
 import { Navigation } from '../components/navigation/Navigation';
 import { logoutRequest } from '../store/login';
 
@@ -14,4 +13,4 @@ const mapStateToProps = state => ({
     },
   });
   
-  export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Navigation));
+  export default connect(mapStateToProps, mapDispatchToProps)(Navigation);

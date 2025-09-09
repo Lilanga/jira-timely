@@ -8,14 +8,17 @@ import {saveCredentials, saveProfile, clearCredentials} from '../../data/databas
 
 function* handleLogin(payload) {
     try {
+        console.log("Login saga triggered with payload:", payload);
         // To call async functions, use redux-saga's `call()`.
         const res = yield effects.call(validateAccount, payload.payload.url, payload.payload.email, payload.payload.password);
+        console.log("Validation response:", res);
         if (res) {
             saveCredentials(payload.payload);
             saveProfile(res.payload);
             yield handlePostSignIn(res);
         }
     } catch (err) {
+        console.error("Login error:", err);
         handleLoginErrors(err);
     }
 }

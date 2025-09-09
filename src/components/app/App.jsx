@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import TitleBar from "frameless-titlebar";
+import CustomTitleBar from "../titlebar/CustomTitleBar";
 import defaultIcon from "../../img/jira_sm.png"
 import { Layout } from "antd";
 import Loader from "../../containers/Loader";
@@ -35,7 +35,7 @@ export class App extends Component {
 
     return (
       <Layout className="layout">
-        <TitleBar
+        <CustomTitleBar
           icon={defaultIcon}
           app="Jira Timely"
           theme={{
