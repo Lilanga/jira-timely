@@ -1,13 +1,195 @@
-.events {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.enhanced-calendar-container {
+  padding: 24px;
+  padding-top: 24px; /* Spacing handled by main layout */
+  background: #f5f5f5;
+  min-height: 100vh;
+
+  .calendar-header-card {
+    margin-bottom: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f0f0;
+
+    .calendar-instructions {
+      display: flex;
+      align-items: center;
+      color: #666;
+      font-size: 14px;
+    }
   }
 
-.events .ant-badge-status {
-    overflow: hidden;
-    white-space: nowrap;
-    width: 100%;
-    text-overflow: ellipsis;
-    font-size: 12px;
+  .calendar-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f0f0;
+
+    .ant-card-body {
+      padding: 16px;
+    }
   }
+
+  .rbc-calendar {
+    border: none;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+
+    .rbc-toolbar {
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 16px 20px;
+      margin-bottom: 0;
+
+      .rbc-btn-group {
+        button {
+          background: white;
+          border: 1px solid #d9d9d9;
+          color: #666;
+          border-radius: 6px;
+          margin-right: 8px;
+          padding: 6px 12px;
+          transition: all 0.3s;
+
+          &:hover {
+            background: #f0f0f0;
+            border-color: #40a9ff;
+            color: #40a9ff;
+          }
+
+          &.rbc-active {
+            background: #2090ea;
+            border-color: #2090ea;
+            color: white;
+          }
+        }
+      }
+
+      .rbc-toolbar-label {
+        font-size: 18px;
+        font-weight: 600;
+        color: #262626;
+      }
+    }
+
+    .rbc-header {
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 12px 8px;
+      font-weight: 500;
+      color: #262626;
+      text-align: center;
+    }
+
+    .rbc-time-view .rbc-header {
+      border-left: 1px solid #f0f0f0;
+
+      &:first-child {
+        border-left: none;
+      }
+    }
+
+    .rbc-time-content {
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .rbc-timeslot-group {
+      border-bottom: 1px solid #f5f5f5;
+    }
+
+    .rbc-time-slot {
+      border-top: 1px solid #f5f5f5;
+    }
+
+    .rbc-day-slot .rbc-time-slot {
+      border-left: 1px solid #f0f0f0;
+    }
+
+    .rbc-current-time-indicator {
+      background-color: #ff4d4f;
+      height: 2px;
+      z-index: 3;
+    }
+  }
+
+  .calendar-event {
+    font-size: 12px;
+    line-height: 1.2;
+    padding: 2px 4px;
+
+    strong {
+      display: block;
+      font-weight: 600;
+    }
+
+    div {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+  }
+}
+
+.rbc-event {
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  font-size: 12px !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+
+  &.rbc-selected {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
+.rbc-slot-selecting {
+  background-color: rgba(32, 144, 234, 0.1) !important;
+  border: 2px solid #2090ea !important;
+}
+
+.rbc-slot-selection {
+  background-color: rgba(32, 144, 234, 0.2) !important;
+}
+
+@media (max-width: 768px) {
+  .enhanced-calendar-container {
+    padding: 16px;
+
+    .calendar-card .ant-card-body {
+      padding: 8px;
+    }
+
+    .rbc-calendar {
+      .rbc-toolbar {
+        padding: 12px 16px;
+        flex-direction: column;
+        gap: 12px;
+
+        .rbc-toolbar-label {
+          font-size: 16px;
+          order: -1;
+        }
+      }
+    }
+
+    .calendar-event {
+      font-size: 10px;
+
+      div {
+        font-size: 9px;
+      }
+    }
+  }
+}
+
+.events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.events .ant-badge-status {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}

@@ -104,6 +104,9 @@ export function getWorklogs(url, username, password, startDate, endDate) {
         .then(response => {
             console.log("Myself endpoint status:", response.status);
             if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('UNAUTHORIZED');
+                }
                 throw new Error(`API access failed: ${response.status}`);
             }
             return response.json();
@@ -191,10 +194,104 @@ export function getWorklogs(url, username, password, startDate, endDate) {
         })
         .catch(error => {
             console.error("Complete worklog fetch error:", error);
-            
-            // Instead of failing completely, return empty array so app still works
+            if (error && error.message === 'UNAUTHORIZED') {
+                reject(error);
+                return;
+            }
+            // For non-auth errors, allow app to continue with empty data
             console.warn("Worklog fetch failed, returning empty data to allow app to continue");
             resolve([]);
+        });
+    });
+}
+
+export function getAssignedIssues(url, username, password) {
+    return new Promise((resolve, reject) => {
+        const authString = btoa(`${username}:${password}`);
+        
+        // Search for issues assigned to current user that are not closed/resolved
+        const jql = encodeURIComponent("assignee = currentUser() AND resolution = Unresolved ORDER BY updated DESC");
+        const searchUrl = `https://${url}/rest/api/2/search?jql=${jql}&fields=summary,status,issuetype,priority,updated,assignee,project&maxResults=100`;
+        
+        console.log("Fetching assigned issues:", searchUrl);
+        
+        fetch(searchUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${authString}`,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log("Assigned issues response status:", response.status);
+            if (!response.ok) {
+                if (response.status === 403) {
+                    console.warn("Assigned issues API access denied. Returning empty data.");
+                    resolve([]);
+                    return null;
+                } else {
+                    throw new Error(`Assigned issues fetch failed: ${response.status} ${response.statusText}`);
+                }
+            }
+            return response.json();
+        })
+        .then(response => {
+            if (response === null) return; // Already resolved with empty array
+            
+            console.log("Assigned issues response:", response);
+            const issues = response.issues || [];
+            console.log(`Found ${issues.length} assigned issues`);
+            resolve(issues);
+        })
+        .catch(error => {
+            console.error("Assigned issues fetch error:", error);
+            if (error && (error.message === 'UNAUTHORIZED' || String(error).includes('401'))) {
+                reject(error);
+                return;
+            }
+            console.warn("Assigned issues fetch failed, returning empty data");
+            resolve([]);
+        });
+    });
+}
+
+export function addWorklog(url, username, password, issueKey, worklogData) {
+    return new Promise((resolve, reject) => {
+        const authString = btoa(`${username}:${password}`);
+        
+        const worklogUrl = `https://${url}/rest/api/2/issue/${issueKey}/worklog`;
+        
+        const payload = {
+            comment: worklogData.comment || '',
+            started: worklogData.started,
+            timeSpentSeconds: worklogData.timeSpentSeconds
+        };
+        
+        console.log("Adding worklog to issue:", issueKey, payload);
+        
+        fetch(worklogUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Basic ${authString}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            console.log("Add worklog response status:", response.status);
+            if (!response.ok) {
+                throw new Error(`Add worklog failed: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(response => {
+            console.log("Worklog added successfully:", response);
+            resolve(response);
+        })
+        .catch(error => {
+            console.error("Add worklog error:", error);
+            reject(error);
         });
     });
 }

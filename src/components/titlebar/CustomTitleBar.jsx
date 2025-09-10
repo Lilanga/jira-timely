@@ -2,22 +2,29 @@ import React from 'react';
 import './CustomTitleBar.scss';
 
 const CustomTitleBar = ({ icon, app, theme = {} }) => {
-  const handleMinimize = () => {
-    if (window.electronAPI?.minimize) {
-      window.electronAPI.minimize();
+  let ipcRenderer;
+  try {
+    // Fallback to ipc if no preload API is present
+    // eslint-disable-next-line no-undef
+    if (window && typeof window.require === 'function') {
+      const electron = window.require('electron');
+      ipcRenderer = electron?.ipcRenderer;
     }
+  } catch (_) {}
+
+  const handleMinimize = () => {
+    if (window.electronAPI?.minimize) return window.electronAPI.minimize();
+    if (ipcRenderer) ipcRenderer.send('window-controls', 'minimize');
   };
 
   const handleMaximize = () => {
-    if (window.electronAPI?.maximize) {
-      window.electronAPI.maximize();
-    }
+    if (window.electronAPI?.maximize) return window.electronAPI.maximize();
+    if (ipcRenderer) ipcRenderer.send('window-controls', 'maximize');
   };
 
   const handleClose = () => {
-    if (window.electronAPI?.close) {
-      window.electronAPI.close();
-    }
+    if (window.electronAPI?.close) return window.electronAPI.close();
+    if (ipcRenderer) ipcRenderer.send('window-controls', 'close');
   };
 
   const titleBarStyle = {

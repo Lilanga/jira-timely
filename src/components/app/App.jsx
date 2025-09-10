@@ -1,61 +1,70 @@
-import React, { Component } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CustomTitleBar from "../titlebar/CustomTitleBar";
+import Header from "../header/Header";
+import ErrorBoundary from "../common/ErrorBoundary";
 import defaultIcon from "../../img/jira_sm.png"
 import { Layout } from "antd";
 import Loader from "../../containers/Loader";
-import Navigation from "../../containers/Navigation";
 import Routes from "../../Routes";
 import "./App.scss";
 import { getCredentials } from "../../data/database";
 
-export class App extends Component {
-  constructor(props) {
-    super(props);
+export const App = ({ userDetails, isLoggedIn, isLoading, signInRequest, logoutRequest }) => {
+  // Removed unused isAuthenticating state to fix ESLint warning
+  
+  const { Content } = Layout;
 
-    this.state = {
-      isAuthenticating: true,
-    };
-  }
-
-  async componentDidMount() {
-    try {
-      let credentials = await getCredentials();
-      this.setState({ isAuthenticating: credentials });
-
-      if (credentials) {
-        this.props.signInRequest(credentials);
-      }
-    } catch (e) {
-      this.setState({ isAuthenticating: false });
+  const handleLogout = useCallback(() => {
+    if (logoutRequest) {
+      logoutRequest();
     }
-  }
+  }, [logoutRequest]);
 
-  render() {
-    const { Content } = Layout;
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const credentials = await getCredentials();
 
-    return (
-      <Layout className="layout">
-        <CustomTitleBar
-          icon={defaultIcon}
-          app="Jira Timely"
-          theme={{
-            barTheme: 'dark',
-            barBackgroundColor: '#2090ea',
-            menuHighlightColor: '#2090ea',
-            barShowBorder: true,
-            barBorderBottom: '1px solid #1a70b7',
-          }}
-        />
-        <Layout>
-          <Navigation />
-          <Layout>
-            <Content>
-              <Routes />
-              <Loader />
-            </Content>
-          </Layout>
-        </Layout>
+        if (credentials && signInRequest) {
+          signInRequest(credentials);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      }
+    };
+
+    initializeAuth();
+  }, [signInRequest]);
+
+  return (
+    <Layout className="layout">
+      <CustomTitleBar
+        icon={defaultIcon}
+        app="Jira Timely"
+        theme={{
+          barTheme: 'dark',
+          barBackgroundColor: '#2090ea',
+          menuHighlightColor: '#2090ea',
+          barShowBorder: true,
+          barBorderBottom: '1px solid #1a70b7',
+        }}
+      />
+      {isLoggedIn && (
+        <ErrorBoundary>
+          <Header 
+            userDetails={userDetails}
+            onLogout={handleLogout}
+          />
+        </ErrorBoundary>
+      )}
+      <Layout>
+        <Content style={{ padding: 0 }}>
+          <ErrorBoundary>
+            <Routes childProps={{ userDetails, isLoggedIn, isLoading }} />
+          </ErrorBoundary>
+          <Loader />
+        </Content>
       </Layout>
-    );
-  }
-}
+    </Layout>
+  );
+};

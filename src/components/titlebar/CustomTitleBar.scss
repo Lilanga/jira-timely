@@ -1,13 +1,16 @@
 .custom-title-bar {
-  height: 30px;
+  height: 32px;
   background-color: #2090ea;
   color: white;
   display: flex;
   align-items: center;
   -webkit-app-region: drag;
   user-select: none;
-  z-index: 1000;
-  position: relative;
+  z-index: 2000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   
   .title-bar-content {
     display: flex;
@@ -39,7 +42,7 @@
       
       .title-bar-control {
         width: 46px;
-        height: 30px;
+        height: 32px;
         border: none;
         background: transparent;
         color: white;

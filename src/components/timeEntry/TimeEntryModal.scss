@@ -1,0 +1,139 @@
+.time-entry-modal {
+  .modal-title {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #262626;
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .time-entry-form {
+    .issue-selector-card {
+      margin-bottom: 24px;
+      
+      .ant-card-body {
+        padding: 16px;
+        background: #fafafa;
+      }
+
+      .issue-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+
+        .issue-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex: 1;
+          min-width: 0;
+
+          .issue-key {
+            font-weight: 600;
+            color: #1890ff;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+          }
+
+          .issue-summary {
+            color: #262626;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+          }
+        }
+      }
+    }
+
+    .ant-form-item-label > label {
+      font-weight: 500;
+      color: #262626;
+    }
+
+    .ant-select,
+    .ant-picker,
+    .ant-input-number {
+      border-radius: 6px;
+    }
+
+    .ant-select-dropdown {
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+  }
+}
+
+.ant-select-dropdown {
+  .ant-select-item-option {
+    padding: 8px 12px;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    &.ant-select-item-option-selected {
+      background-color: #e6f7ff;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .time-entry-modal {
+    .ant-modal {
+      width: 95% !important;
+      margin: 10px;
+    }
+
+    .ant-modal-body {
+      padding: 16px;
+    }
+
+    .time-entry-form {
+      .ant-col {
+        margin-bottom: 8px;
+      }
+      
+      .issue-selector-card {
+        margin-bottom: 16px;
+        
+        .issue-option {
+          .issue-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+          }
+        }
+      }
+
+      .form-actions {
+        margin-top: 16px;
+        padding-top: 12px;
+        
+        .ant-btn {
+          flex: 1;
+          margin-right: 0 !important;
+          margin-left: 8px;
+          
+          &:first-child {
+            margin-left: 0;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,16 +1,38 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { Home, NotFound } from "./components";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { NotFound } from "./components";
+import Timely from "./containers/Timely";
+import Agenda from "./containers/Agenda";
 import WorkLogCalendar from "./containers/WorkLogCalendar";
+import Settings from "./containers/Settings";
 import Login from "./containers/Login";
-import AppliedRoute from "./utils/AppliedRoute";
+import Test from "./containers/Test";
+// AppliedRoute is no longer necessary with React Router v6
 
-const AppRoutes = ({ childProps }) =>
-  <Routes>
-    <Route path="/" element={<AppliedRoute component={Home} props={childProps} />} />
-    <Route path="/login" element={<AppliedRoute component={Login} props={childProps} />} />
-    <Route path="/calendar" element={<WorkLogCalendar />} />
-    <Route path="*" element={<NotFound />} />
-  </Routes>;
+const AppRoutes = ({ childProps }) => {
+  const isLoggedIn = !!childProps?.isLoggedIn;
+
+  return (
+    <Routes>
+      {isLoggedIn ? (
+        <>
+          <Route path="/" element={<Timely {...childProps} />} />
+          <Route path="/timely" element={<Timely {...childProps} />} />
+          <Route path="/agenda" element={<Agenda {...childProps} />} />
+          <Route path="/calendar" element={<WorkLogCalendar {...childProps} />} />
+          <Route path="/settings" element={<Settings {...childProps} />} />
+          <Route path="/test" element={<Test {...childProps} />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
+        </>
+      ) : (
+        <>
+          <Route path="/login" element={<Login {...childProps} />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </>
+      )}
+    </Routes>
+  );
+};
 
 export default AppRoutes;

@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -72,6 +72,25 @@ app.on('ready', async () => {
         } catch (error) {
             console.log('DevTools extensions could not be loaded:', error);
         }
+    }
+});
+
+// Window control IPC handlers
+ipcMain.on('window-controls', (event, action) => {
+    if (!mainWindow) return;
+    switch (action) {
+        case 'minimize':
+            mainWindow.minimize();
+            break;
+        case 'maximize':
+            if (mainWindow.isMaximized()) mainWindow.unmaximize();
+            else mainWindow.maximize();
+            break;
+        case 'close':
+            mainWindow.close();
+            break;
+        default:
+            break;
     }
 });
 

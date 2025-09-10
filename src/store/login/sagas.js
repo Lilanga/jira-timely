@@ -1,4 +1,5 @@
 import * as effects from "redux-saga/effects";
+import { message } from 'antd';
 import dates from "../../utils/dates";
 import * as actions from "./actions";
 import * as worklogActions from "../worklog/actions";
@@ -19,7 +20,7 @@ function* handleLogin(payload) {
         }
     } catch (err) {
         console.error("Login error:", err);
-        handleLoginErrors(err);
+        yield* handleLoginErrors(err);
     }
 }
 
@@ -30,23 +31,20 @@ function* handleSignIn(payload) {
             yield handlePostSignIn(res);
         }
     } catch (err) {
-        handleLoginErrors(err);
+        yield* handleLoginErrors(err);
     }
 }
 
-function* handlePostSignIn(res){
-    yield effects.put(actions.loginSuccess(res));
-    
-    const range = {startDate: dates.add(new Date(), -30, "day"), endDate: new Date()};
-    yield effects.put(worklogActions.worklogRequest(range));
-}
+// Note: defined below with corrected payload handling
 
 function* handleLoginErrors(error){
-    if (error instanceof Error) {
-        yield effects.put(actions.loginFailed(error.stack));
-    } else {
-        yield effects.put(actions.loginFailed("An unknown error occured."));
-    }
+    const messageText = error instanceof Error 
+        ? (error.message || 'Authentication failed')
+        : 'Authentication failed';
+
+    yield effects.put(actions.loginFailed(messageText));
+    // Toast to inform user
+    message.error('Invalid credentials. Please check your Jira domain, email, and API token.');
 }
 
 function* handleLogout() {
@@ -68,6 +66,14 @@ function* watchLogoutRequest() {
 }
 
 // use `fork()` here to split our saga into multiple watchers.
+function* handlePostSignIn(res){
+    // ensure reducer receives plain user object
+    yield effects.put(actions.loginSuccess(res.payload));
+    
+    const range = {startDate: dates.add(new Date(), -30, "day"), endDate: new Date()};
+    yield effects.put(worklogActions.worklogRequest(range));
+}
+
 export function* userProfileSaga() {
     yield effects.all([
         effects.fork(watchLoginRequest), 

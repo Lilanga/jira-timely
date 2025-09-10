@@ -1,3 +1,9 @@
-.layout{
+.layout {
   height: 100vh;
+  
+  .ant-layout-content {
+    margin-top: 96px; // 32px for title bar + 64px for header
+    padding-top: 0;
+    min-height: calc(100vh - 96px);
+  }
 }
