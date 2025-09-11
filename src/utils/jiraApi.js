@@ -146,7 +146,7 @@ export function getWorklogs(url, username, password, startDate, endDate) {
             
             // Now try a basic GET search instead of POST
             const jql = encodeURIComponent("assignee = currentUser() ORDER BY updated DESC");
-            const searchUrl = `https://${url}/rest/api/2/search?jql=${jql}&fields=summary,worklog,issuetype&maxResults=10`;
+            const searchUrl = `https://${url}/rest/api/2/search?jql=${jql}&fields=summary,worklog,issuetype,project,key&maxResults=10`;
             
             console.log("Trying GET search:", searchUrl);
             

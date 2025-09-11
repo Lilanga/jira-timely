@@ -102,12 +102,13 @@ const Timely = ({
     const issueStats = {};
     
     filteredWorklogs.forEach(log => {
-      const projectKey = log.issueKey?.split('-')[0] || 'Unknown';
+      const projectKey = log.projectKey || (log.issueKey?.split('-')[0]) || 'Unknown';
+      const projectName = log.projectName || projectKey;
       const issueKey = log.issueKey || 'Unknown';
       const timeHours = (log.timeSpentSeconds || 0) / 3600;
       
       if (!projectStats[projectKey]) {
-        projectStats[projectKey] = { time: 0, issues: new Set() };
+        projectStats[projectKey] = { time: 0, issues: new Set(), name: projectName };
       }
       projectStats[projectKey].time += timeHours;
       projectStats[projectKey].issues.add(issueKey);
@@ -239,7 +240,7 @@ const Timely = ({
                     <List.Item>
                       <List.Item.Meta
                         avatar={<Avatar style={{ backgroundColor: '#2090ea' }}>{project}</Avatar>}
-                        title={project}
+                        title={data.name || project}
                         description={`${data.issues.size} issues`}
                       />
                       <div className="time-display">
