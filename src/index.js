@@ -8,6 +8,11 @@ import 'antd/dist/antd.css';
 import App from './containers/App';
 import * as serviceWorker from './config/serviceWorker';
 
+// Polyfill global for packages that expect it
+if (typeof global === 'undefined') {
+  window.global = window;
+}
+
 const initialState = window.initialReduxState;
 const store = configureStore(initialState);
 

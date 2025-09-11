@@ -7,14 +7,21 @@ import WorkLogCalendar from "./containers/WorkLogCalendar";
 import Settings from "./containers/Settings";
 import Login from "./containers/Login";
 import Test from "./containers/Test";
-// AppliedRoute is no longer necessary with React Router v6
+import OAuthCallback from "./components/auth/OAuthCallback";
+import { oauth as oauthService } from "./services/oauth";
 
 const AppRoutes = ({ childProps }) => {
   const isLoggedIn = !!childProps?.isLoggedIn;
+  const isOAuthAuthenticated = oauthService.isAuthenticated();
 
   return (
     <Routes>
-      {isLoggedIn ? (
+      {/* OAuth callback route - always accessible */}
+      <Route path="/auth/callback" element={<OAuthCallback />} />
+      {/* Support web config callback path as well */}
+      <Route path="/callback" element={<OAuthCallback />} />
+      
+      {(isLoggedIn || isOAuthAuthenticated) ? (
         <>
           <Route path="/" element={<Timely {...childProps} />} />
           <Route path="/timely" element={<Timely {...childProps} />} />

@@ -6,6 +6,7 @@ import * as worklogActions from "../worklog/actions";
 import { LOGIN_REQUEST, LOGOUT_REQUEST, SIGNIN_REQUEST } from "./types";
 import { validateAccount } from "../../utils/jiraApi";
 import {saveCredentials, saveProfile, clearCredentials} from '../../data/database';
+import { oauth as oauthService } from '../../services/oauth';
 
 function* handleLogin(payload) {
     try {
@@ -48,7 +49,18 @@ function* handleLoginErrors(error){
 }
 
 function* handleLogout() {
-    yield clearCredentials();
+    try {
+        // Clear stored basic credentials and profile
+        yield clearCredentials();
+    } catch (e) {
+        // noop
+    }
+    try {
+        // Clear OAuth tokens if present
+        yield oauthService.clearTokens?.();
+    } catch (e) {
+        // noop
+    }
 }
 
 // use `take*()` functions to watch Redux for a specific action

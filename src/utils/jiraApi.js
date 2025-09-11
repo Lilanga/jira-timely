@@ -1,44 +1,74 @@
 import {formatToJiraDate, getWorklogsFromIssues} from './payloadMappings';
 
-var JiraClient = require('jira-connector');
-
-const getJiraClient = (host, username, password) =>{
-    return new JiraClient({
-        host,
-        basic_auth: {
-            username,
-            password
-        }
-    });
-}
-
 export function getIssue(issueKey) {
     return new Promise((resolve, reject) => {
-        let jira = getJiraClient(process.env.REACT_APP_JIRA_API_ENDPOINT, process.env.REACT_APP_JIRA_USER_NAME, process.env.REACT_APP_JIRA_PASSWORD);
+        const host = process.env.REACT_APP_JIRA_API_ENDPOINT;
+        const username = process.env.REACT_APP_JIRA_USER_NAME;
+        const password = process.env.REACT_APP_JIRA_PASSWORD;
 
-        jira.issue.getIssue({
-            issueKey: issueKey
-        }, function (error, issue) {
-            if (error) {
-                reject(error);
+        if (!host || !username || !password) {
+            reject(new Error('Missing JIRA credentials or host in environment variables'));
+            return;
+        }
+
+        const authString = btoa(`${username}:${password}`);
+        const url = `https://${host}/rest/api/2/issue/${encodeURIComponent(issueKey)}`;
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${authString}`,
+                'Accept': 'application/json'
             }
-            resolve(issue);
-        });
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Issue fetch failed: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(issue => resolve(issue))
+        .catch(err => reject(err));
     });
 }
 
 export function searchUser(username, password) {
     return new Promise((resolve, reject) => {
-        let jira = getJiraClient(process.env.REACT_APP_JIRA_API_ENDPOINT, username, password);
+        const host = process.env.REACT_APP_JIRA_API_ENDPOINT;
+        if (!host) {
+            reject(new Error('Missing JIRA host in environment variables'));
+            return;
+        }
 
-        jira.user.search({
-            username: username
-        }, function (error, issue) {
-            if (error) {
-                reject(error);
+        const authString = btoa(`${username}:${password}`);
+        // Older API used `username`, newer uses `query`. Try `query` first, fall back to `username`.
+        const query = encodeURIComponent(username);
+        const urls = [
+            `https://${host}/rest/api/2/user/search?query=${query}`,
+            `https://${host}/rest/api/2/user/search?username=${query}`
+        ];
+
+        // Try endpoints sequentially until one succeeds
+        (async () => {
+            for (const url of urls) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Basic ${authString}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (!res.ok) continue;
+                    const users = await res.json();
+                    resolve(users && users.length ? users[0] : null);
+                    return;
+                } catch (_) {
+                    // try next
+                }
             }
-            resolve(issue[0]);
-        });
+            reject(new Error('User search failed'));
+        })();
     });
 }
 
