@@ -1,6 +1,8 @@
 {
   "name": "jira-timely",
   "version": "0.1.0",
+  "description": "A Jira time tracking application with OAuth2 support",
+  "author": "Lilanga Gamage",
   "homepage": "./",
   "private": true,
   "dependencies": {
@@ -8,9 +10,11 @@
     "@atlaskit/avatar": "^21.18.4",
     "antd": "^4.24.16",
     "axios": "^1.11.0",
+    "core-js": "^3.45.1",
     "crypto-js": "^4.2.0",
     "date-arithmetic": "^4.1.0",
     "dexie": "^4.0.9",
+    "events": "^3.3.0",
     "jira-connector": "^3.1.0",
     "moment": "^2.30.1",
     "pouchdb-adapter-idb": "^8.0.1",
@@ -21,24 +25,31 @@
     "react-redux": "^8.1.3",
     "react-router-bootstrap": "^0.26.3",
     "react-router-dom": "^6.26.2",
-    "react-scripts": "^5.0.1",
     "redux": "^4.2.1",
     "redux-saga": "^1.3.0",
     "rxdb": "^15.34.1",
     "rxjs": "^7.8.1",
     "smalltalk": "^3.4.0",
-    "styled-components": "^6.1.13",
-    "events": "^3.3.0"
+    "styled-components": "^6.1.13"
   },
   "main": "src/config/electron-app.js",
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "react-scripts eject",
+    "start": "cross-env NODE_ENV=development webpack serve --config webpack.dev.js",
+    "build": "npm run build:prod",
+    "build:prod": "cross-env NODE_ENV=production webpack --mode=production",
+    "build:dev": "cross-env NODE_ENV=development webpack --config webpack.dev.js",
+    "build:electron": "npm run build:prod && npm run dist",
     "electron": "electron .",
     "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .\"",
-    "electron-dev": "ELECTRON_IS_DEV=true electron ."
+    "electron-dev": "cross-env ELECTRON_IS_DEV=true electron .",
+    "electron-prod": "cross-env NODE_ENV=production electron .",
+    "postbuild:prod": "node scripts/post-build.js",
+    "prebuild:electron": "npm run build:prod",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win --config.compression=store",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "pack": "electron-builder --dir --config.compression=store"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -50,14 +61,111 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@craco/craco": "^7.1.0",
+    "@babel/core": "^7.28.4",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-transform-runtime": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
     "@electron/get": "^4.0.2",
+    "autoprefixer": "^10.4.21",
+    "babel-loader": "^10.0.0",
     "concurrently": "^9.0.1",
+    "copy-webpack-plugin": "^13.0.1",
     "cross-env": "^7.0.3",
+    "css-loader": "^7.1.2",
+    "dotenv-webpack": "^8.1.1",
     "electron": "^32.1.2",
+    "electron-builder": "^26.0.12",
     "electron-debug": "^4.0.1",
     "electron-devtools-installer": "^3.2.0",
+    "html-webpack-plugin": "^5.6.4",
+    "mini-css-extract-plugin": "^2.9.4",
+    "postcss-loader": "^8.2.0",
     "sass": "^1.79.4",
-    "wait-on": "^8.0.1"
+    "sass-loader": "^16.0.5",
+    "style-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.14",
+    "wait-on": "^8.0.1",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2",
+    "webpack-merge": "^6.0.1"
+  },
+  "build": {
+    "appId": "com.lilanga.jira-timely",
+    "productName": "Jira Timely",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "build/**/*",
+      "src/config/electron-app.js",
+      "src/config/preload.js",
+      "src/config/app-config.js",
+      "!node_modules/**/*",
+      "node_modules/events/**/*"
+    ],
+    "compression": "store",
+    "removePackageScripts": true,
+    "extraResources": [
+      {
+        "from": "src/img",
+        "to": "app/src/img"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "mac": {
+      "target": {
+        "target": "dmg",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      },
+      "icon": "src/img/jira_sm.png",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "src/img/jira_sm.png",
+      "category": "Office"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "publish": null
   }
 }
