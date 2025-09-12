@@ -3,6 +3,7 @@ const path = require('path');
 const url = require('url');
 const http = require('http');
 const { URL } = require('url');
+const appConfig = require('./app-config');
 // Node 18+ has global fetch; node 22 in your env supports it
 
 // Use dynamic import for ESM modules
@@ -36,8 +37,10 @@ function createWindow(){
     
     mainWindow.loadURL(startUrl);
 
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // Open the DevTools only in development.
+    if (process.env.NODE_ENV === 'development' || process.env.ELECTRON_IS_DEV) {
+        mainWindow.webContents.openDevTools();
+    }
     
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -114,7 +117,7 @@ app.on('activate', () => {
 
 // OAuth 2.0 Server for Desktop Authentication
 let oauthServer = null;
-let oauthPort = 8080;
+let oauthPort = appConfig.get('oauth.callbackPort') || 8080;
 
 // Start OAuth callback server (fixed port 8080 to match Atlassian callback URL)
 ipcMain.handle('start-oauth-server', async () => {
@@ -240,9 +243,17 @@ ipcMain.handle('open-external', (event, url) => {
 
 // OAuth callbacks will be handled by the main process
 
+// Get app configuration for renderer process
+ipcMain.handle('get-app-config', () => {
+    return appConfig.getPublicConfig();
+});
+
 // Confidential client token exchange (main process) to keep client_secret out of renderer
 ipcMain.handle('oauth-token-exchange', async (event, args) => {
-    const { code, redirectUri, clientId, clientSecret, tokenUrl } = args || {};
+    const { code, redirectUri, tokenUrl } = args || {};
+    const clientId = appConfig.get('jira.clientId');
+    const clientSecret = appConfig.get('jira.clientSecret');
+    
     if (!clientId || !clientSecret) {
         throw new Error('Missing client credentials for confidential OAuth exchange');
     }
@@ -267,7 +278,10 @@ ipcMain.handle('oauth-token-exchange', async (event, args) => {
 });
 
 ipcMain.handle('oauth-refresh-token', async (event, args) => {
-    const { refreshToken, clientId, clientSecret, tokenUrl } = args || {};
+    const { refreshToken, tokenUrl } = args || {};
+    const clientId = appConfig.get('jira.clientId');
+    const clientSecret = appConfig.get('jira.clientSecret');
+    
     if (!clientId || !clientSecret) {
         throw new Error('Missing client credentials for confidential refresh');
     }

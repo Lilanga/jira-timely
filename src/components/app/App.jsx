@@ -10,7 +10,7 @@ import "./App.scss";
 import { getCredentials } from "../../data/database";
 import { oauth as oauthService } from "../../services/oauth";
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../../store/login/actions';
+import { loginSuccess, restoreSession } from '../../store/login/actions';
 import { validateOAuthAccount } from '../../utils/jiraOAuthApi';
 import { saveProfile } from '../../data/database';
 
@@ -27,12 +27,19 @@ export const App = ({ userDetails, isLoggedIn, isLoading, signInRequest, logoutR
   }, [logoutRequest]);
 
   useEffect(() => {
+    // Prevent running if already logged in or loading
+    if (isLoggedIn || isLoading) {
+      return;
+    }
+
     const initializeAuth = async () => {
       try {
         const credentials = await getCredentials();
 
-        if (credentials && signInRequest) {
-          signInRequest(credentials);
+        if (credentials) {
+          // For cached credentials, use restoreSession to avoid API validation loop
+          // The stored credentials are already validated
+          dispatch(restoreSession(credentials));
         } else if (oauthService.isAuthenticated() && (!userDetails || Object.keys(userDetails || {}).length === 0)) {
           // Hydrate Redux with OAuth profile on app start
           try {
@@ -44,6 +51,7 @@ export const App = ({ userDetails, isLoggedIn, isLoading, signInRequest, logoutR
             }
           } catch (e) {
             // ignore, header/routes will still work off OAuth tokens
+            console.warn('OAuth profile validation failed:', e.message);
           }
         }
       } catch (error) {
@@ -52,7 +60,7 @@ export const App = ({ userDetails, isLoggedIn, isLoading, signInRequest, logoutR
     };
 
     initializeAuth();
-  }, [signInRequest, dispatch, userDetails]);
+  }, [signInRequest, dispatch, isLoggedIn, isLoading]); // Removed userDetails dependency
 
   return (
     <Layout className="layout">

@@ -6,6 +6,9 @@ window.global = window;
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electron', {
+  // App Configuration
+  getAppConfig: () => ipcRenderer.invoke('get-app-config'),
+  
   // OAuth Server API
   startOAuthServer: () => ipcRenderer.invoke('start-oauth-server'),
   stopOAuthServer: () => ipcRenderer.invoke('stop-oauth-server'),

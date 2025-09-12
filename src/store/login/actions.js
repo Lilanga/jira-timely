@@ -19,3 +19,7 @@ export function loginFailed(payload) {
 export function logoutRequest() {
     return { type: types.LOGOUT_REQUEST };
 }
+
+export function restoreSession(payload) {
+    return { type: types.RESTORE_SESSION, payload };
+}

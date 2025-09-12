@@ -3,7 +3,7 @@ import { message } from 'antd';
 import dates from "../../utils/dates";
 import * as actions from "./actions";
 import * as worklogActions from "../worklog/actions";
-import { LOGIN_REQUEST, LOGOUT_REQUEST, SIGNIN_REQUEST } from "./types";
+import { LOGIN_REQUEST, LOGOUT_REQUEST, SIGNIN_REQUEST, RESTORE_SESSION } from "./types";
 import { validateAccount } from "../../utils/jiraApi";
 import {saveCredentials, saveProfile, clearCredentials} from '../../data/database';
 import { oauth as oauthService } from '../../services/oauth';
@@ -48,6 +48,20 @@ function* handleLoginErrors(error){
     message.error('Invalid credentials. Please check your Jira domain, email, and API token.');
 }
 
+function* handleRestoreSession(payload) {
+    try {
+        // Restore session without API validation - credentials are already validated
+        yield effects.put(actions.loginSuccess(payload.payload));
+        
+        // Load fresh worklog data for the landing page
+        const range = {startDate: dates.add(new Date(), -30, "day"), endDate: new Date()};
+        yield effects.put(worklogActions.worklogRequest(range));
+    } catch (error) {
+        console.error('Error restoring session:', error);
+        yield effects.put(actions.loginFailed('Session restore failed'));
+    }
+}
+
 function* handleLogout() {
     try {
         // Clear stored basic credentials and profile
@@ -77,6 +91,10 @@ function* watchLogoutRequest() {
     yield effects.takeEvery(LOGOUT_REQUEST, handleLogout);
 }
 
+function* watchRestoreSession() {
+    yield effects.takeEvery(RESTORE_SESSION, handleRestoreSession);
+}
+
 // use `fork()` here to split our saga into multiple watchers.
 function* handlePostSignIn(res){
     // ensure reducer receives plain user object
@@ -90,6 +108,7 @@ export function* userProfileSaga() {
     yield effects.all([
         effects.fork(watchLoginRequest), 
         effects.fork(watchLogoutRequest), 
-        effects.fork(watchSignInRequest)
+        effects.fork(watchSignInRequest),
+        effects.fork(watchRestoreSession)
     ]);
 }
