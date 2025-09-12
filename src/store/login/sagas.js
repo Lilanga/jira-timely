@@ -5,7 +5,7 @@ import * as actions from "./actions";
 import * as worklogActions from "../worklog/actions";
 import { LOGIN_REQUEST, LOGOUT_REQUEST, SIGNIN_REQUEST, RESTORE_SESSION } from "./types";
 import { validateAccount } from "../../utils/jiraApi";
-import {saveCredentials, saveProfile, clearCredentials} from '../../data/database';
+import {saveCredentials, saveProfile, getProfile, clearCredentials} from '../../data/database';
 import { oauth as oauthService } from '../../services/oauth';
 
 function* handleLogin(payload) {
@@ -50,11 +50,21 @@ function* handleLoginErrors(error){
 
 function* handleRestoreSession(payload) {
     try {
-        // Restore session without API validation - credentials are already validated
-        yield effects.put(actions.loginSuccess(payload.payload));
+        // Load saved profile data for the header/profile section
+        const savedProfile = yield effects.call(getProfile);
+        
+        if (savedProfile) {
+            // Use saved profile data for proper header display
+            yield effects.put(actions.loginSuccess(savedProfile));
+        } else {
+            // Fallback to credentials if no profile saved (shouldn't happen normally)
+            yield effects.put(actions.loginSuccess(payload.payload));
+        }
         
         // Load fresh worklog data for the landing page
-        const range = {startDate: dates.add(new Date(), -30, "day"), endDate: new Date()};
+        const startDate = dates.add(new Date(), -30, "day");
+        const endDate = new Date();
+        const range = {startDate, endDate};
         yield effects.put(worklogActions.worklogRequest(range));
     } catch (error) {
         console.error('Error restoring session:', error);
@@ -64,16 +74,55 @@ function* handleRestoreSession(payload) {
 
 function* handleLogout() {
     try {
-        // Clear stored basic credentials and profile
-        yield clearCredentials();
+        console.log('Logout saga started - clearing all authentication data');
+        
+        // 1. Clear stored basic credentials and profile
+        yield effects.call(clearCredentials);
+        console.log('✓ Database credentials cleared');
+        
+        // 2. Clear OAuth tokens if present
+        if (oauthService.clearTokens) {
+            yield effects.call(oauthService.clearTokens.bind(oauthService));
+            console.log('✓ OAuth tokens cleared');
+        }
+        
+        // 3. Clear all localStorage (including any cached data)
+        if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.clear();
+            console.log('✓ LocalStorage cleared');
+        }
+        
+        // 4. Clear any sessionStorage
+        if (typeof window !== 'undefined' && window.sessionStorage) {
+            window.sessionStorage.clear();
+            console.log('✓ SessionStorage cleared');
+        }
+        
+        // 5. Clear worklog data
+        yield effects.put(worklogActions.clearWorklogData());
+        console.log('✓ Worklog data cleared');
+        
+        // 6. Dispatch logout success to update Redux state
+        yield effects.put(actions.loginFailed('Logged out'));
+        console.log('✓ Redux state cleared');
+        
+        // 7. Force complete app reload to ensure clean slate
+        yield effects.call(() => {
+            setTimeout(() => {
+                if (typeof window !== 'undefined') {
+                    window.location.href = window.location.origin + '/#/login';
+                    window.location.reload();
+                }
+            }, 100);
+        });
+        
     } catch (e) {
-        // noop
-    }
-    try {
-        // Clear OAuth tokens if present
-        yield oauthService.clearTokens?.();
-    } catch (e) {
-        // noop
+        console.error('Logout error:', e);
+        // Even if cleanup fails, force reload
+        if (typeof window !== 'undefined') {
+            window.location.href = window.location.origin + '/#/login';
+            window.location.reload();
+        }
     }
 }
 
@@ -100,7 +149,10 @@ function* handlePostSignIn(res){
     // ensure reducer receives plain user object
     yield effects.put(actions.loginSuccess(res.payload));
     
-    const range = {startDate: dates.add(new Date(), -30, "day"), endDate: new Date()};
+    // Format dates properly for worklog API
+    const startDate = dates.add(new Date(), -30, "day");
+    const endDate = new Date();
+    const range = {startDate, endDate};
     yield effects.put(worklogActions.worklogRequest(range));
 }
 

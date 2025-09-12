@@ -28,8 +28,12 @@ const Timely = ({
         assignedIssuesRequest();
       }
       
-      // Fetch worklogs for current date range
-      if (worklogRequest && typeof worklogRequest === 'function' && dateRange && dateRange[0] && dateRange[1]) {
+      // Only fetch worklogs if we don't have any data yet
+      // The login saga should have already triggered worklog fetch, 
+      // but this serves as a fallback
+      if (worklogRequest && typeof worklogRequest === 'function' && 
+          dateRange && dateRange[0] && dateRange[1] && 
+          worklogs.length === 0) {
         worklogRequest({
           startDate: dateRange[0].format('YYYY-MM-DD'),
           endDate: dateRange[1].format('YYYY-MM-DD')
@@ -38,7 +42,7 @@ const Timely = ({
     } catch (error) {
       console.error('Error in Timely component mount:', error);
     }
-  }, []);
+  }, []); // Empty dependency array for mount only
 
   useEffect(() => {
     filterWorklogs();

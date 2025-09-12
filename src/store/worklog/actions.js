@@ -37,3 +37,7 @@ export function addWorklogRequestSuccess(payload) {
 export function addWorklogRequestFailed(payload) {
     return { type: types.ADD_WORKLOG_REQUEST_FAILED, payload };
 }
+
+export function clearWorklogData() {
+    return { type: types.CLEAR_WORKLOG_DATA };
+}

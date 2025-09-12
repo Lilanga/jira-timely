@@ -95,6 +95,19 @@ async function getCredentials(){
     return credentials;
 }
 
+async function getProfile(){
+    let db = await getDatabase();
+    let profile;
+
+    try{
+        profile = await (db.profile.findOne()).exec();
+    }catch(e){
+        profile = null;
+    }
+
+    return profile;
+}
+
 async function clearCredentials(){
     let db = await getDatabase();
     try{
@@ -110,5 +123,6 @@ export {
     saveCredentials,
     saveProfile,
     getCredentials,
+    getProfile,
     clearCredentials
 };

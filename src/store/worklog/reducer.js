@@ -34,6 +34,9 @@ import * as types from './types';
       case types.ADD_WORKLOG_REQUEST_SUCCESS:
         return { ...state, isAddingWorklog: false, worklogError: null };
       
+      case types.CLEAR_WORKLOG_DATA:
+        return { ...INITIAL_STATE };
+      
       default:
         return state;
     }

@@ -11,6 +11,8 @@ import {
 } from '@ant-design/icons';
 import { getCredentials } from '../../data/database';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logoutRequest } from '../../store/login/actions';
 import './Header.scss';
 
 const { Header: AntHeader } = Layout;
@@ -18,6 +20,7 @@ const { Header: AntHeader } = Layout;
 const Header = ({ userDetails = {}, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const [siteDomain, setSiteDomain] = useState('');
 
   useEffect(() => {
@@ -103,10 +106,12 @@ const Header = ({ userDetails = {}, onLogout }) => {
     if (key === 'settings') {
       navigate('/settings');
     }
-    if (key === 'logout' && onLogout) {
-      onLogout();
-      message.success('Logged out');
-      navigate('/login');
+    if (key === 'logout') {
+      // Show immediate feedback
+      message.success('Logging out...');
+      
+      // Dispatch logout action - saga will handle all cleanup and navigation
+      dispatch(logoutRequest());
     }
   };
 
