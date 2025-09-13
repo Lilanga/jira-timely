@@ -15,9 +15,11 @@ function* handleLogin(payload) {
         const res = yield effects.call(validateAccount, payload.payload.url, payload.payload.email, payload.payload.password);
         console.log("Validation response:", res);
         if (res) {
-            saveCredentials(payload.payload);
-            saveProfile(res.payload);
-            yield handlePostSignIn(res);
+            // Ensure credentials and profile are persisted before proceeding
+            yield effects.call(saveCredentials, payload.payload);
+            yield effects.call(saveProfile, res.payload);
+            // Trigger post sign-in actions (loginSuccess + initial data loads)
+            yield* handlePostSignIn(res);
         }
     } catch (err) {
         console.error("Login error:", err);
@@ -29,7 +31,10 @@ function* handleSignIn(payload) {
     try {
         const res = yield effects.call(validateAccount, payload.payload.url, payload.payload.email, payload.payload.password);
         if (res) {
-            yield handlePostSignIn(res);
+            // For sign-in, persist as well to avoid race conditions
+            yield effects.call(saveCredentials, payload.payload);
+            yield effects.call(saveProfile, res.payload);
+            yield* handlePostSignIn(res);
         }
     } catch (err) {
         yield* handleLoginErrors(err);
@@ -64,8 +69,13 @@ function* handleRestoreSession(payload) {
         // Load fresh worklog data for the landing page
         const startDate = dates.add(new Date(), -30, "day");
         const endDate = new Date();
-        const range = {startDate, endDate};
-        yield effects.put(worklogActions.worklogRequest(range));
+        const toYmd = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+        yield effects.put(worklogActions.worklogRequest({
+            startDate: toYmd(startDate),
+            endDate: toYmd(endDate)
+        }));
+        // Load assigned issues as well
+        yield effects.put(worklogActions.assignedIssuesRequest());
     } catch (error) {
         console.error('Error restoring session:', error);
         yield effects.put(actions.loginFailed('Session restore failed'));
@@ -152,8 +162,13 @@ function* handlePostSignIn(res){
     // Format dates properly for worklog API
     const startDate = dates.add(new Date(), -30, "day");
     const endDate = new Date();
-    const range = {startDate, endDate};
-    yield effects.put(worklogActions.worklogRequest(range));
+    const toYmd = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    yield effects.put(worklogActions.worklogRequest({
+        startDate: toYmd(startDate),
+        endDate: toYmd(endDate)
+    }));
+    // Also load assigned issues for the Timely dashboard
+    yield effects.put(worklogActions.assignedIssuesRequest());
 }
 
 export function* userProfileSaga() {
