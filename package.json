@@ -41,6 +41,7 @@
     "build:electron": "npm run build:prod && npm run dist",
     "electron": "electron .",
     "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 ELECTRON_IS_DEV=true NODE_ENV=development electron .\"",
+    "build-dev": "npm run build && npm run dev",
     "electron-dev": "cross-env ELECTRON_IS_DEV=true electron .",
     "electron-prod": "cross-env NODE_ENV=production electron .",
     "postbuild:prod": "node scripts/post-build.js",
