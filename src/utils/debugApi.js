@@ -10,12 +10,12 @@ export function testJiraPermissions(url, username, password) {
         },
         {
             name: 'Search Issues',
-            url: `https://${url}/rest/api/2/search?jql=assignee=currentUser()&maxResults=1`,
+            url: `https://${url}/rest/api/3/search/jql?jql=assignee=currentUser()&maxResults=1`,
             method: 'GET'
         },
         {
             name: 'Get Issue Worklogs',
-            url: `https://${url}/rest/api/2/search?jql=assignee=currentUser()&fields=worklog&maxResults=1`,
+            url: `https://${url}/rest/api/3/search/jql?jql=assignee=currentUser()&fields=worklog&maxResults=1`,
             method: 'GET'
         }
     ];

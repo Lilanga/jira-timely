@@ -146,7 +146,7 @@ export function getWorklogs(url, username, password, startDate, endDate) {
             
             // Now try a basic GET search instead of POST
             const jql = encodeURIComponent("assignee = currentUser() ORDER BY updated DESC");
-            const searchUrl = `https://${url}/rest/api/2/search?jql=${jql}&fields=summary,worklog,issuetype,project,key&maxResults=10`;
+            const searchUrl = `https://${url}/rest/api/3/search/jql?jql=${jql}&fields=summary,worklog,issuetype,project,key&maxResults=10`;
             
             console.log("Trying GET search:", searchUrl);
             
@@ -241,7 +241,7 @@ export function getAssignedIssues(url, username, password) {
         
         // Search for issues assigned to current user that are not closed/resolved
         const jql = encodeURIComponent("assignee = currentUser() AND resolution = Unresolved ORDER BY updated DESC");
-        const searchUrl = `https://${url}/rest/api/2/search?jql=${jql}&fields=summary,status,issuetype,priority,updated,assignee,project&maxResults=100`;
+        const searchUrl = `https://${url}/rest/api/3/search/jql?jql=${jql}&fields=summary,status,issuetype,priority,updated,assignee,project&maxResults=100`;
         
         console.log("Fetching assigned issues:", searchUrl);
         
