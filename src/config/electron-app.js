@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, shell} = require('electron');
+const {app, BrowserWindow, ipcMain, shell, session} = require('electron');
 const path = require('path');
 const url = require('url');
 const http = require('http');
@@ -49,7 +49,21 @@ function createWindow(){
 
 app.on('ready', async () => {
     createWindow();
-    
+
+    try {
+        const filter = { urls: ['https://*.atlassian.net/rest/api/*'] };
+        session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
+            const headers = {
+                ...details.requestHeaders,
+                'User-Agent': 'jira-timely'
+            };
+            callback({ requestHeaders: headers });
+        });
+        console.log('Custom User-Agent applied for Atlassian REST requests');
+    } catch (error) {
+        console.warn('Failed to apply custom User-Agent:', error);
+    }
+
     // Only load DevTools in development
     if (process.env.NODE_ENV === 'development' || process.env.ELECTRON_IS_DEV) {
         try {

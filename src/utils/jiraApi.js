@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {formatToJiraDate, getWorklogsFromIssues} from './payloadMappings';
 
 export function getIssue(issueKey) {
@@ -293,7 +294,7 @@ export function addWorklog(url, username, password, issueKey, worklogData) {
         
         const payload = {
             comment: worklogData.comment || '',
-            started: worklogData.started,
+            started: moment(worklogData.started).format('YYYY-MM-DDTHH:mm:ss.SSSZZ'),
             timeSpentSeconds: worklogData.timeSpentSeconds
         };
         
