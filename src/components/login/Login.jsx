@@ -67,8 +67,8 @@ export const Login = ({ isLoggedIn, loginRequest }) => {
           Sign in to Jira Timely
         </Typography.Title>
 
-        {/* OAuth 2.0 Login (Recommended) */}
-        {isOAuthAvailable && (
+        {/* OAuth 2.0 Login (Recommended) - Temporarily hidden until SSO config is available */}
+        {false && isOAuthAvailable && (
           <>
             <Alert
               message="Recommended: OAuth 2.0"
@@ -77,17 +77,17 @@ export const Login = ({ isLoggedIn, loginRequest }) => {
               showIcon
               style={{ marginBottom: 16 }}
             />
-            <Button 
-              type="primary" 
-              size="large" 
-              block 
+            <Button
+              type="primary"
+              size="large"
+              block
               icon={<SafetyOutlined />}
               onClick={handleOAuthLogin}
               style={{ marginBottom: 24 }}
             >
               Sign in with Atlassian OAuth
             </Button>
-            
+
             <Divider>Or use API Token</Divider>
           </>
         )}
