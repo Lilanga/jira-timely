@@ -3,7 +3,7 @@ import CustomTitleBar from "../titlebar/CustomTitleBar";
 import Header from "../header/Header";
 import ErrorBoundary from "../common/ErrorBoundary";
 import defaultIcon from "../../img/jira_sm.png"
-import { Layout } from "antd";
+import { Layout, message } from "antd";
 import Loader from "../../containers/Loader";
 import Routes from "../../Routes";
 import "./App.scss";
@@ -19,6 +19,13 @@ export const App = ({ userDetails, isLoggedIn, isLoading, signInRequest, logoutR
   
   const { Content } = Layout;
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Position toast messages below the custom title bar so they remain visible
+    const TITLE_BAR_HEIGHT = 32;
+    const GAP_BELOW_TITLE_BAR = 16;
+    message.config({ top: TITLE_BAR_HEIGHT + GAP_BELOW_TITLE_BAR });
+  }, []);
 
   const handleLogout = useCallback(() => {
     if (logoutRequest) {
