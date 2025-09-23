@@ -35,22 +35,19 @@
   "main": "src/config/electron-app.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve --config webpack.dev.js",
-    "build": "npm run build:prod",
-    "build:prod": "cross-env NODE_ENV=production webpack --mode=production",
+    "build": "cross-env NODE_ENV=production webpack --mode=production",
     "build:dev": "cross-env NODE_ENV=development webpack --config webpack.dev.js",
-    "build:electron": "npm run build:prod && npm run dist",
+    "build:electron": "npm run build && npm run dist",
     "electron": "electron .",
     "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 ELECTRON_IS_DEV=true NODE_ENV=development electron .\"",
     "build-dev": "npm run build && npm run dev",
-    "electron-dev": "cross-env ELECTRON_IS_DEV=true electron .",
-    "electron-prod": "cross-env NODE_ENV=production electron .",
     "postbuild:prod": "node scripts/post-build.js",
-    "prebuild:electron": "npm run build:prod",
-    "dist": "electron-builder",
-    "dist:win": "electron-builder --win --config.compression=store",
-    "dist:mac": "electron-builder --mac",
-    "dist:linux": "electron-builder --linux",
-    "pack": "electron-builder --dir --config.compression=store"
+    "prebuild:electron": "npm run build",
+    "dist": "npm run build && npx electron-builder",
+    "dist:win": "npm run build && electron-builder --win --config.compression=store",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "dist:portable": "npm run build && npx electron-builder --win portable"
   },
   "eslintConfig": {
     "extends": "react-app"
